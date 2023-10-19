@@ -1,5 +1,5 @@
-const http = require('http')
-const express = require('express')
+const http = require('http') 
+const express = require('express') 
 const cors = require('cors')
 
 const { signup , login} = require('./services/userService')
@@ -13,7 +13,7 @@ app.get('/ping', (req, res) => {res.json({ message: '/YBpong111'})})
 app.post("/signup", signup) //회원가입 
 app.post("/posts", posts)//게시글 등록
 app.get("/viewAllPost",viewAllPost)//게시글 전체 보기
-app.post("/viewuserPost",viewUserPost)//유저의 게시글 조회하기
+app.get("/viewuserPost",viewUserPost)//유저의 게시글 조회하기
 app.put("/modifyPost", modifyPost) //게시글 수정하기
 app.delete("/deletePost",deletePost) //게시글 삭제하기
 app.post("/threadLike", threadLike) //좋아요 누르기
@@ -29,3 +29,4 @@ const start = async () => { // 서버를 시작하는 함수입니다.
 }
 
 start()
+

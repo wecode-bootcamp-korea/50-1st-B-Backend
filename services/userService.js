@@ -32,12 +32,18 @@ const signup = async (req, res) => {
     console.log(err)
   }
   }
-  // 로그인 함순
+  // 로그인 함수
   const login = async (req, res) => {
     const email = req.body.email
     const password = req.body.password
-    const payload = { email : email , password : password}
-
+    
+//데이터베이스에서 로그인한 사람의 유저아이디를 가지고옴
+    const userId = await appDataSource.query(`
+    SELECT id 
+    FROM users
+    WHERE email ='${email}'
+    `)
+    const payload = { email : email , password : password, user_id : userId}
     
     //1. 프론트에서 보내준 이메일로 데이터베이스에서 비밀번호를 찾는다
     const findEmail = await appDataSource.query(`
@@ -51,8 +57,8 @@ const signup = async (req, res) => {
     
     if (!checkHash) {return res.status(401).json({"message":"WRONG_PASSWORD"})} // 비밀번호 틀렸을 때
 
-    const token = jwt.sign(payload, process.env.TYPEORM_SECRETKEY,{expiresIn:600})  //  jwt.sign으로 토큰 생성
-    console.log(token)
+    const token = jwt.sign(payload, process.env.TYPEORM_SECRETKEY,{expiresIn:10*60})  //  jwt.sign으로 토큰 생성
+    console.log('login token:',token)
     res.status(201).json({message:"LOGIN_SUCCSESS",token}) // 비밀번호 맞았을 때
   }
 

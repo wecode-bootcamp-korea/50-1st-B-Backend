@@ -8,44 +8,60 @@ const posts = async (req, res) => {
   try {
     const token = req.headers.token
     const decoded = jwt.verify(token, process.env.TYPEORM_SECRETKEY)
+    const email = decoded.email
     console.log(decoded)
-  } catch (err) {
-    console.log(err)
-  }
-    const userId = req.body.user_id
+    const userId = await appDataSource.query(`
+    SELECT id 
+    FROM users
+    WHERE email ='${email}'
+    `)
+    console.log("userId:",userId[0].id)
     const content = req.body.content
-
+    console.log("content:",content)
+    
     const data = await appDataSource.query (`
-    insert into threads (user_id, content) values ('${userId}', '${content}')
+    insert into threads (user_id, content) values ('${userId[0].id}', '${content}')
     `
     )
-    console.log(data)
-  
     res.status(201).json({message:"success"})
+  } catch (err) {
+    console.log("err", err)
   }
+}
+  
   
   //전체 게시물 조회
   const viewAllPost = async (req, res) => {
     const data = await appDataSource.query(`
     SELECT * from threads
     `)
-    console.log(data)
   
     res.status(200).json({"message":"success",data})
   }
   
+
   //유저의 게시글 조회하기
   const viewUserPost = async (req, res) => {
-    //유저의 ID 받아서 content 보여주기
-    const userId = req.body.user_id
+    try {
+    const token = req.headers.token
+    const decoded = jwt.verify(token, process.env.TYPEORM_SECRETKEY)
+    //토큰에 있는 이메일을 가진 users의 아이디
+    const userId = await appDataSource.query(`
+    SELECT id 
+    FROM users
+    WHERE email ='${decoded.email}'
+    `)
+    console.log('decoded:',decoded)
+    console.log("userId:",userId)
     //db에서 쏴주기
     const data = await appDataSource.query (`
-    select * from threads where user_id ='${userId}'
+    select * from threads where user_id ='${userId[0].id}'
     `)
-  
     console.log(data)
-    
-    res.status(200).json({"message":"success"})
+    res.status(200).json({"message":"success",data})
+    } catch (err) {
+      console.log("err", err)
+    }
   }
   
   //유저의 게시글 수정하기
